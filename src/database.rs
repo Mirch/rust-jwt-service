@@ -5,7 +5,7 @@ use std::{
 
 use anyhow::{anyhow, Result};
 
-use crate::models::User;
+use crate::models::{User, UserRole};
 
 pub struct Database {
     pub users: Arc<RwLock<HashMap<String, User>>>,
@@ -13,12 +13,21 @@ pub struct Database {
 
 impl Database {
     pub fn new() -> Self {
-        Self {
-            users: Arc::new(RwLock::new(HashMap::new())),
-        }
+        let mut users = HashMap::new();
+        users.insert(
+            String::from("admin"),
+            User {
+                username: String::from("admin"),
+                password: String::from("admin"),
+                role: UserRole::Admin,
+            },
+        );
+
+        let users = Arc::new(RwLock::new(users));
+        Self { users }
     }
 
-    pub fn insert(self, user: &User) -> Result<()> {
+    pub fn insert(&self, user: &User) -> Result<()> {
         let mut data = self.users.write().unwrap();
         let data = &mut *data;
 
@@ -28,7 +37,7 @@ impl Database {
         Ok(())
     }
 
-    pub fn get(self, username: &str) -> Result<User> {
+    pub fn get(&self, username: &str) -> Result<User> {
         let data = self.users.read().unwrap();
         let data = &*data;
 
