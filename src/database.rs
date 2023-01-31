@@ -37,13 +37,10 @@ impl Database {
         Ok(())
     }
 
-    pub fn get(&self, username: &str) -> Result<User> {
+    pub fn get(&self, username: &str) -> Option<User> {
         let data = self.users.read().unwrap();
         let data = &*data;
 
-        match data.get(username) {
-            Some(value) => Ok(value.clone()),
-            None => Err(anyhow!("Could not find user for username {}", username)),
-        }
+        data.get(username).map(|u| u.clone())
     }
 }
