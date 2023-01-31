@@ -3,9 +3,8 @@ use crate::{
     routes::{health_check, login, register},
 };
 use actix_web::{dev::Server, web, App, HttpServer};
-use std::net::TcpListener;
 
-pub fn run(listener: TcpListener) -> Result<Server, std::io::Error> {
+pub fn run() -> Result<Server, std::io::Error> {
     let database = web::Data::new(Database::new());
 
     let server = HttpServer::new(move || {
@@ -15,7 +14,7 @@ pub fn run(listener: TcpListener) -> Result<Server, std::io::Error> {
             .route("/login", web::post().to(login))
             .route("/register", web::post().to(register))
     })
-    .listen(listener)?
+    .bind(("127.0.0.1", 8080))?
     .run();
 
     Ok(server)
