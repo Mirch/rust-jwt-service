@@ -1,18 +1,10 @@
 use anyhow::Result;
 use chrono::{Duration, Utc};
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
-use serde::{Deserialize, Serialize};
 
-use crate::models::UserRole;
+use crate::{claims::Claims, user::UserRole};
 
 const JWT_SECRET: &[u8] = b"JWT_TOKEN_SECRET";
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Claims {
-    pub sub: String,
-    pub role: String,
-    pub exp: i64,
-}
 
 pub fn build_token(username: String, role: UserRole, token_duration: i64) -> Result<String> {
     let expiration_time = Utc::now()
@@ -48,7 +40,7 @@ mod tests {
 
     use claim::assert_err;
 
-    use crate::models::UserRole;
+    use crate::user::UserRole;
 
     use super::{build_token, validate_token};
 

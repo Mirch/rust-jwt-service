@@ -3,9 +3,9 @@ use std::{
     sync::{Arc, RwLock},
 };
 
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 
-use crate::models::{User, UserRole};
+use crate::user::{User, UserRole};
 
 pub struct Database {
     pub users: Arc<RwLock<HashMap<String, User>>>,

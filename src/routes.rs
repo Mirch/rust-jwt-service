@@ -3,13 +3,21 @@ use serde::Deserialize;
 use serde_json::json;
 
 use crate::{
+    claims::Claims,
     database::Database,
     jwt::build_token,
-    models::{User, UserRole},
+    user::{User, UserRole},
 };
 
 pub async fn health_check() -> HttpResponse {
     HttpResponse::Ok().finish()
+}
+
+pub async fn get_secret_info(claims: Claims) -> HttpResponse {
+    println!("Getting secret info for user {}", claims.sub);
+    let response = json!({ "message": "This is a very secret message." });
+
+    HttpResponse::Ok().json(response)
 }
 
 #[derive(Deserialize)]
@@ -35,7 +43,7 @@ pub async fn register(
 
     match database.insert(&user_entry) {
         Ok(_) => {}
-        Err(_) => return HttpResponse::BadRequest().finish(),
+        Err(_) => return HttpResponse::InternalServerError().finish(),
     };
 
     build_jwt_response(user_entry.username, user_entry.role)
@@ -62,7 +70,7 @@ fn build_jwt_response(username: String, role: UserRole) -> HttpResponse {
         Ok(value) => value,
         Err(_) => return HttpResponse::InternalServerError().finish(),
     };
-    let token_response = serde_json::to_string_pretty(&json!({ "token": token })).unwrap();
+    let token_response = json!({ "token": token });
 
     HttpResponse::Ok().json(token_response)
 }
