@@ -1,10 +1,12 @@
+use std::net::TcpListener;
+
 use crate::{
     database::Database,
     routes::{get_secret_info, health_check, login, register},
 };
 use actix_web::{dev::Server, web, App, HttpServer};
 
-pub fn run() -> Result<Server, std::io::Error> {
+pub fn run(listener: TcpListener) -> Result<Server, std::io::Error> {
     let database = web::Data::new(Database::new());
 
     let server = HttpServer::new(move || {
@@ -15,7 +17,7 @@ pub fn run() -> Result<Server, std::io::Error> {
             .route("/register", web::post().to(register))
             .route("/secret", web::get().to(get_secret_info))
     })
-    .bind(("127.0.0.1", 8080))?
+    .listen(listener)?
     .run();
 
     Ok(server)

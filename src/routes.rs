@@ -1,5 +1,5 @@
 use actix_web::{web, HttpResponse};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use crate::{
@@ -24,6 +24,11 @@ pub async fn get_secret_info(claims: Claims) -> HttpResponse {
 pub struct UserAuthRequest {
     pub username: String,
     pub password: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct UserAuthResponse {
+    pub token: String,
 }
 
 pub async fn register(
@@ -70,7 +75,7 @@ fn build_jwt_response(username: String, role: UserRole) -> HttpResponse {
         Ok(value) => value,
         Err(_) => return HttpResponse::InternalServerError().finish(),
     };
-    let token_response = json!({ "token": token });
+    let token_response = json!(UserAuthResponse { token });
 
     HttpResponse::Ok().json(token_response)
 }
